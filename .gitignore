@@ -128,56 +128,25 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Модели YOLOv11x (автоматически загружаются)
+*.pt
+yolo11x.pt
+
+# Результаты детекции
+results/
+*.jpg
+*.png
+*.jpeg
+
+# Тестовые данные (загружаются автоматически)
+data/test/
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Project specific
-models/*.pt
-models/*.pth
-models/*.onnx
-models/*.engine
-data/test/*.jpg
-data/test/*.png
-data/test/*.jpeg
-data/images/*.jpg
-data/images/*.png
-data/images/*.jpeg
-results/
-runs/
-wandb/
-*.weights
-
-# YOLOv5 repository (cloned locally)
-yolov5/
-
-# YOLOv5 specific
-yolov5/runs/
-yolov5/wandb/
-yolov5/weights/
-yolov5/data/images/
-yolov5/data/labels/
-
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
-
-# Large files
-*.zip
-*.tar.gz
-*.rar
-*.7z 
+Thumbs.db 

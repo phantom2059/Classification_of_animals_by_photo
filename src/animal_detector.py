@@ -1,5 +1,5 @@
 """
-Модуль для обнаружения и классификации животных на изображениях с использованием MegaDetector
+Модуль для обнаружения и классификации животных на изображениях с использованием YOLOv11x
 """
 
 import cv2
@@ -9,16 +9,12 @@ import sys
 import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-
-# Добавляем путь к YOLOv5
-yolo_path = Path(__file__).parent.parent / 'yolov5'
-if yolo_path.exists():
-    sys.path.insert(0, str(yolo_path))
+from ultralytics import YOLO
 
 
 class AnimalDetector:
     """
-    Класс для обнаружения и классификации животных на изображениях с использованием MegaDetector
+    Класс для обнаружения и классификации животных на изображениях с использованием YOLOv11x
     """
     
     def __init__(self, model_path=None):
@@ -26,44 +22,48 @@ class AnimalDetector:
         Инициализация детектора животных
         
         Args:
-            model_path (str): Путь к модели MegaDetector. Если None, используется предобученная модель
+            model_path (str): Путь к модели YOLOv11x. Если None, используется предобученная модель
         """
         try:
-            # Загружаем MegaDetector через локальный YOLOv5
             if model_path and os.path.exists(model_path):
-                self.model = torch.hub.load(str(yolo_path), 'custom', path=model_path, source='local', force_reload=True)
+                self.model = YOLO(model_path)
             else:
-                # Используем локальную модель MegaDetector v5a
-                model_path = 'models/md_v5a.0.0.pt'
-                if os.path.exists(model_path):
-                    self.model = torch.hub.load(str(yolo_path), 'custom', path=model_path, source='local', force_reload=True)
-                else:
-                    raise FileNotFoundError(f"Модель MegaDetector не найдена: {model_path}")
+                self.model = YOLO('yolo11x.pt')
             
-            print("MegaDetector успешно загружен!")
+            print("YOLOv11x успешно загружен!")
             
         except Exception as e:
-            print(f"Ошибка при загрузке MegaDetector: {e}")
+            print(f"Ошибка при загрузке модели: {e}")
             raise
         
-        # Словарь с русскими названиями классов MegaDetector
-        # MegaDetector имеет 3 класса: 0=animal, 1=person, 2=vehicle
-        self.class_names_ru = {
-            0: 'животное',
-            1: 'человек', 
-            2: 'транспорт'
+        # Словарь с русскими названиями животных из COCO dataset
+        self.animal_classes_ru = {
+            'bird': 'птица',
+            'cat': 'кот',
+            'dog': 'собака', 
+            'horse': 'лошадь',
+            'sheep': 'овца',
+            'cow': 'корова',
+            'elephant': 'слон',
+            'bear': 'медведь',
+            'zebra': 'зебра',
+            'giraffe': 'жираф'
         }
         
-        # Словарь с английскими названиями
-        self.class_names_en = {
-            0: 'animal',
-            1: 'person',
-            2: 'vehicle'
-        }
+        # Получаем все классы COCO
+        self.coco_classes = self.model.names
+        
+        # Определяем какие классы являются животными
+        self.animal_class_ids = []
+        for class_id, class_name in self.coco_classes.items():
+            if class_name in self.animal_classes_ru:
+                self.animal_class_ids.append(class_id)
+        
+        print(f"Обнаружено {len(self.animal_class_ids)} классов животных в COCO")
     
-    def detect(self, image_path, conf_threshold=0.1):
+    def detect(self, image_path, conf_threshold=0.25):
         """
-        Обнаружение животных на изображении
+        Обнаружение и классификация животных на изображении
         
         Args:
             image_path (str): Путь к изображению
@@ -72,72 +72,62 @@ class AnimalDetector:
         Returns:
             tuple: (изображение с разметкой, список обнаруженных объектов)
         """
-        # Загружаем изображение
         image = Image.open(image_path)
         
-        # Выполняем предсказание с помощью MegaDetector
-        self.model.conf = conf_threshold
-        results = self.model(image)
+        print("Обнаружение животных с помощью YOLOv11x...")
         
-        # Список для хранения обнаруженных объектов
-        detected_objects = []
+        results = self.model(image, conf=conf_threshold)
         
-        # Создаем копию изображения для рисования
+        detected_animals = []
+        
         draw_image = image.copy()
         draw = ImageDraw.Draw(draw_image)
         
-        # Пытаемся загрузить шрифт, если не получается - используем стандартный
         try:
-            font = ImageFont.truetype("arial.ttf", 24)
+            font = ImageFont.truetype("arial.ttf", 28)
         except:
             font = ImageFont.load_default()
         
-        # Обрабатываем результаты
-        detections = results.pandas().xyxy[0]
+        if len(results) > 0:
+            for result in results:
+                if result.boxes is not None:
+                    for box in result.boxes:
+                        class_id = int(box.cls[0])
+                        confidence = float(box.conf[0])
+                        coords = box.xyxy[0].tolist()
+                        class_name = self.coco_classes[class_id]
+                        
+                        if class_id in self.animal_class_ids and confidence >= conf_threshold:
+                            x1, y1, x2, y2 = [int(coord) for coord in coords]
+                            
+                            animal_name_ru = self.animal_classes_ru.get(class_name, class_name)
+                            
+                            if confidence >= 0.8:
+                                color = "red"
+                            elif confidence >= 0.5:
+                                color = "orange"
+                            else:
+                                color = "yellow"
+                            
+                            draw.rectangle([x1, y1, x2, y2], outline=color, width=6)
+                            
+                            label = f"{animal_name_ru} {confidence:.2f}"
+                            
+                            text_bbox = draw.textbbox((x1, y1-40), label, font=font)
+                            draw.rectangle(text_bbox, fill=color)
+                            
+                            draw.text((x1, y1-40), label, fill="white", font=font)
+                            
+                            detected_animals.append({
+                                'class_ru': animal_name_ru,
+                                'class_en': class_name,
+                                'confidence': confidence,
+                                'bbox': (x1, y1, x2, y2),
+                                'class_id': class_id,
+                                'detection_method': 'YOLOv11x'
+                            })
         
-        for _, detection in detections.iterrows():
-            confidence = detection['confidence']
-            class_id = int(detection['class'])
-            
-            # Проверяем порог уверенности
-            if confidence >= conf_threshold:
-                # Получаем координаты рамки
-                x1, y1, x2, y2 = int(detection['xmin']), int(detection['ymin']), int(detection['xmax']), int(detection['ymax'])
-                
-                # Выбираем цвет в зависимости от категории
-                if class_id == 0:  # животное
-                    color = "red"
-                elif class_id == 1:  # человек
-                    color = "blue"
-                elif class_id == 2:  # транспорт
-                    color = "green"
-                else:
-                    color = "yellow"
-                
-                # Рисуем рамку с увеличенной толщиной (5 пикселей)
-                draw.rectangle([x1, y1, x2, y2], outline=color, width=5)
-                
-                # Формируем текст с названием и уверенностью
-                class_name = self.class_names_ru.get(class_id, f'класс_{class_id}')
-                label = f"{class_name} {confidence:.2f}"
-                
-                # Рисуем фон для текста
-                text_bbox = draw.textbbox((x1, y1-35), label, font=font)
-                draw.rectangle(text_bbox, fill=color)
-                
-                # Рисуем текст
-                draw.text((x1, y1-35), label, fill="white", font=font)
-                
-                # Добавляем информацию в список
-                detected_objects.append({
-                    'class_ru': class_name,
-                    'class_en': self.class_names_en.get(class_id, f'class_{class_id}'),
-                    'confidence': confidence,
-                    'bbox': (x1, y1, x2, y2),
-                    'category': class_id
-                })
-        
-        return draw_image, detected_objects
+        return draw_image, detected_animals
     
     def save_result(self, image, output_path):
         """
@@ -155,27 +145,21 @@ def main():
     """
     Пример использования детектора
     """
-    # Создаем детектор
     detector = AnimalDetector()
     
-    # Путь к тестовому изображению
     image_path = "data/test/cat1.jpg"
     
-    # Проверяем существование файла
     if not os.path.exists(image_path):
         print(f"Файл {image_path} не найден!")
         return
     
-    # Выполняем обнаружение
-    result_image, objects = detector.detect(image_path)
+    result_image, animals = detector.detect(image_path)
     
-    # Выводим результаты
-    print("\nОбнаруженные объекты:")
-    for obj in objects:
-        print(f"- {obj['class_ru']} (уверенность: {obj['confidence']:.2f})")
+    print("\nОбнаруженные животные:")
+    for animal in animals:
+        print(f"- {animal['class_ru']} (уверенность: {animal['confidence']:.2f}) [YOLOv11x]")
     
-    # Сохраняем результат
-    output_path = "data/test/result_megadetector.jpg"
+    output_path = "data/test/result_yolo11x.jpg"
     detector.save_result(result_image, output_path)
 
 

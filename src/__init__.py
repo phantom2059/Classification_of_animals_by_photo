@@ -2,9 +2,9 @@
 Пакет для классификации животных по фотографиям
 """
 
-from .animal_classifier import AnimalClassifier
+from .animal_detector import AnimalDetector
 
-__version__ = "1.0.0"
-__author__ = "Ваше имя"
+__version__ = "1.0.2"
+__author__ = "phantom2059"
 
-__all__ = ["AnimalClassifier"] 
+__all__ = ["AnimalDetector"] 

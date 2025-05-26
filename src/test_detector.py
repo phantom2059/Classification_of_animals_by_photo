@@ -1,91 +1,92 @@
 """
-Скрипт для тестирования детектора животных с использованием MegaDetector
+Тестовый скрипт для проверки работы детектора животных на основе YOLOv11x
 """
 
 import os
+import sys
 from pathlib import Path
 from animal_detector import AnimalDetector
 
-
-def test_detector(image_path=None):
+def test_all_animals():
     """
-    Тестирование детектора животных
-    
-    Args:
-        image_path (str): Путь к изображению. Если None, используется cat1.jpg
+    Тестирование детектора на всех изображениях животных
     """
-    print(f"\nТестирование MegaDetector на изображении: {image_path}")
-    
     # Создаем детектор
-    print("Инициализация MegaDetector...")
+    print("Инициализация детектора животных YOLOv11x...")
     detector = AnimalDetector()
     
-    # Если путь не указан, используем первое тестовое изображение
-    if image_path is None:
-        image_path = "data/test/cat1.jpg"
+    # Создаем директории для результатов
+    results_dir = Path("results")
+    results_dir.mkdir(exist_ok=True)
     
-    # Проверяем существование файла
-    if not os.path.exists(image_path):
-        print(f"Файл {image_path} не найден!")
-        print("Пожалуйста, запустите сначала скрипт download_test_data.py")
-        return
+    print(f"Результаты будут сохранены в: {results_dir.absolute()}")
     
-    print(f"Файл {image_path} найден")
-    
-    # Выполняем обнаружение
-    print("Выполняем обнаружение с помощью MegaDetector...")
-    result_image, objects = detector.detect(image_path)
-    
-    # Выводим результаты
-    print(f"\nРезультаты для {os.path.basename(image_path)}:")
-    if objects:
-        print("Обнаруженные объекты:")
-        for obj in objects:
-            print(f"- {obj['class_ru']} (уверенность: {obj['confidence']:.2f})")
-    else:
-        print("Объекты не обнаружены")
-    
-    # Сохраняем результат
-    output_path = str(Path(image_path).parent / f"megadetector_result_{Path(image_path).stem}.jpg")
-    print(f"Сохраняем результат в {output_path}")
-    detector.save_result(result_image, output_path)
-    
-    print(f"Результат сохранен в {output_path}")
-
-
-def test_all_images():
-    """
-    Тестирование на всех изображениях в директории test
-    """
-    print("Начинаем тестирование MegaDetector на всех изображениях...")
-    
+    # Путь к тестовым изображениям
     test_dir = Path("data/test")
+    
     if not test_dir.exists():
-        print("Директория с тестовыми изображениями не найдена!")
-        print("Пожалуйста, запустите сначала скрипт download_test_data.py")
+        print(f"Директория {test_dir} не найдена!")
+        print("Запустите сначала: python src/download_animal_test_data.py")
         return
     
-    print(f"Директория {test_dir} найдена")
+    # Получаем список всех изображений
+    image_extensions = ['.jpg', '.jpeg', '.png', '.bmp']
+    image_files = []
     
-    # Получаем список всех jpg файлов
-    image_files = list(test_dir.glob("*.jpg"))
-    # Исключаем файлы результатов
-    image_files = [f for f in image_files if not f.name.startswith('result_') and not f.name.startswith('megadetector_result_')]
+    for ext in image_extensions:
+        image_files.extend(test_dir.glob(f"*{ext}"))
+        image_files.extend(test_dir.glob(f"*{ext.upper()}"))
     
     if not image_files:
-        print("Тестовые изображения не найдены!")
-        print("Пожалуйста, запустите сначала скрипт download_test_data.py")
+        print(f"Изображения не найдены в {test_dir}")
         return
     
-    print(f"Найдено {len(image_files)} изображений для тестирования")
+    print(f"\nНайдено {len(image_files)} изображений для тестирования")
+    print("=" * 60)
     
-    # Тестируем каждое изображение
-    for image_file in image_files:
-        print(f"\n{'='*60}")
-        test_detector(str(image_file))
+    total_animals_found = 0
+    
+    for i, image_path in enumerate(image_files, 1):
+        print(f"\n[{i}/{len(image_files)}] Обработка: {image_path.name}")
+        print("-" * 40)
+        
+        try:
+            # Выполняем детекцию
+            result_image, detected_animals = detector.detect(str(image_path), conf_threshold=0.25)
+            
+            # Выводим результаты
+            if detected_animals:
+                print(f"🐾 Найдено животных: {len(detected_animals)}")
+                for animal in detected_animals:
+                    print(f"  - {animal['class_ru']} (уверенность: {animal['confidence']:.2f}) [YOLOv11x]")
+                total_animals_found += len(detected_animals)
+            else:
+                print("❌ Животные не обнаружены")
+            
+            # Сохраняем результат
+            base_name = image_path.stem
+            output_path = results_dir / f"{base_name}_yolo11x.jpg"
+            detector.save_result(result_image, str(output_path))
+            
+        except Exception as e:
+            print(f"❌ Ошибка при обработке {image_path.name}: {e}")
+    
+    print("\n" + "=" * 60)
+    print(f"🎯 ИТОГИ ТЕСТИРОВАНИЯ YOLOv11x:")
+    print(f"📁 Обработано изображений: {len(image_files)}")
+    print(f"🐾 Всего найдено животных: {total_animals_found}")
+    print(f"📊 Среднее количество животных на изображение: {total_animals_found/len(image_files):.1f}")
+    print(f"📂 Результаты сохранены в папке: {results_dir.absolute()}")
 
+def main():
+    """
+    Основная функция
+    """
+    print("🐾 ТЕСТИРОВАНИЕ ДЕТЕКТОРА ЖИВОТНЫХ YOLOv11x 🐾")
+    print("=" * 60)
+    
+    # Запускаем тестирование
+    test_all_animals()
 
 if __name__ == "__main__":
-    print("Запуск тестирования MegaDetector...")
-    test_all_images()
-    print("\nТестирование завершено!") 
+    main() 
