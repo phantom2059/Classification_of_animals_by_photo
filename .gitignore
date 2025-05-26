@@ -20,6 +20,7 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -27,6 +28,8 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -47,7 +50,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-cover/
 
 # Translations
 *.mo
@@ -70,7 +72,6 @@ instance/
 docs/_build/
 
 # PyBuilder
-.pybuilder/
 target/
 
 # Jupyter Notebook
@@ -84,15 +85,13 @@ ipython_config.py
 .python-version
 
 # pipenv
-Pipfile.lock
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
 
-# poetry
-poetry.lock
-
-# pdm
-.pdm.toml
-
-# PEP 582
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
 # Celery stuff
@@ -129,42 +128,56 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# ML specific
-*.h5
-*.hdf5
-*.pkl
-*.pickle
-*.model
-data/raw/
-data/processed/
-models/trained/
-logs/
-checkpoints/
-
-# Dataset files
-*.csv
-*.json
-*.txt
-!requirements.txt
-!README.md
-
-# Images and videos
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.mp4
-*.avi
-*.mov
-
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo 
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.engine
+data/test/*.jpg
+data/test/*.png
+data/test/*.jpeg
+data/images/*.jpg
+data/images/*.png
+data/images/*.jpeg
+results/
+runs/
+wandb/
+*.weights
+
+# YOLOv5 repository (cloned locally)
+yolov5/
+
+# YOLOv5 specific
+yolov5/runs/
+yolov5/wandb/
+yolov5/weights/
+yolov5/data/images/
+yolov5/data/labels/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+*.7z 
