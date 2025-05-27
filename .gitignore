@@ -138,6 +138,12 @@ results/
 *.png
 *.jpeg
 
+# Исключения для README изображений
+!images_readme/
+!images_readme/*.jpg
+!images_readme/*.png
+!images_readme/*.jpeg
+
 # Тестовые данные (загружаются автоматически)
 data/test/
 
