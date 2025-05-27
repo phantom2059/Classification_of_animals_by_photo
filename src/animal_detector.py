@@ -11,7 +11,6 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from ultralytics import YOLO
 
-
 class AnimalDetector:
     """
     Класс для обнаружения и классификации животных на изображениях с использованием YOLOv11x
@@ -77,7 +76,7 @@ class AnimalDetector:
         print("Обнаружение животных с помощью YOLOv11x...")
         
         results = self.model(image, conf=conf_threshold)
-        
+            
         detected_animals = []
         
         draw_image = image.copy()
@@ -126,7 +125,7 @@ class AnimalDetector:
                                 'class_id': class_id,
                                 'detection_method': 'YOLOv11x'
                             })
-        
+            
         return draw_image, detected_animals
     
     def save_result(self, image, output_path):
