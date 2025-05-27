@@ -69,26 +69,20 @@ detector.save_result(result_image, "result.jpg")
 
 ## 📸 Примеры работы
 
-<p align="center">Вот несколько примеров работы детектора на реальных изображениях:</p>
+<p align="center">Вот несколько примеров работы детектора YOLOv11x на реальных изображениях:</p>
 
 <div align="center">
   <h3>🐦 Обнаружение птицы</h3>
-  <p><b>Исходное изображение:</b> <code>data/test/bird1.jpg</code></p>
-  <p><b>Результат:</b> <code>results/bird1_yolo11x.jpg</code></p>
   <p align="center"><img src="images_readme/bird1_yolo11x.jpg" width="500px"></p>
 </div>
 
 <div align="center">
   <h3>🐄 Обнаружение фермерских животных</h3>
-  <p><b>Исходное изображение:</b> <code>data/test/farm_animals.jpg</code></p>
-  <p><b>Результат:</b> <code>results/farm_animals_yolo11x.jpg</code></p>
   <p align="center"><img src="images_readme/farm_animals_yolo11x.jpg" width="500px"></p>
 </div>
 
 <div align="center">
   <h3>🐘 Обнаружение слона</h3>
-  <p><b>Исходное изображение:</b> <code>data/test/elephant1.jpg</code></p>
-  <p><b>Результат:</b> <code>results/elephant1_yolo11x.jpg</code></p>
   <p align="center"><img src="images_readme/elephant1_yolo11x.jpg" width="500px"></p>
 </div>
 
