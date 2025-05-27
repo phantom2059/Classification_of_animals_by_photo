@@ -75,21 +75,21 @@ detector.save_result(result_image, "result.jpg")
   <h3>🐦 Обнаружение птицы</h3>
   <p><b>Исходное изображение:</b> <code>data/test/bird1.jpg</code></p>
   <p><b>Результат:</b> <code>results/bird1_yolo11x.jpg</code></p>
-  <p align="center"><img src="results/bird1_yolo11x.jpg" width="500px"></p>
+  <p align="center"><img src="images_readme/bird1_yolo11x.jpg" width="500px"></p>
 </div>
 
 <div align="center">
   <h3>🐄 Обнаружение фермерских животных</h3>
   <p><b>Исходное изображение:</b> <code>data/test/farm_animals.jpg</code></p>
   <p><b>Результат:</b> <code>results/farm_animals_yolo11x.jpg</code></p>
-  <p align="center"><img src="results/farm_animals_yolo11x.jpg" width="500px"></p>
+  <p align="center"><img src="images_readme/farm_animals_yolo11x.jpg" width="500px"></p>
 </div>
 
 <div align="center">
   <h3>🐘 Обнаружение слона</h3>
   <p><b>Исходное изображение:</b> <code>data/test/elephant1.jpg</code></p>
   <p><b>Результат:</b> <code>results/elephant1_yolo11x.jpg</code></p>
-  <p align="center"><img src="results/elephant1_yolo11x.jpg" width="500px"></p>
+  <p align="center"><img src="images_readme/elephant1_yolo11x.jpg" width="500px"></p>
 </div>
 
 <p align="center"><i>На изображениях видны цветные рамки вокруг обнаруженных животных с указанием вида и уверенности модели.<br>
