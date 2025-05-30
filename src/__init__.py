@@ -4,7 +4,7 @@
 
 from .animal_detector import AnimalDetector
 
-__version__ = "1.0.2"
+__version__ = "1.0.4"
 __author__ = "phantom2059"
 
-__all__ = ["AnimalDetector"] 
+__all__ = ["AnimalDetector"]
